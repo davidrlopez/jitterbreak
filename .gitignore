@@ -2,6 +2,7 @@
 core/jitterbreak-core
 core/jitterbreak
 core/main
+core/main
 
 # Xcode / Swift
 .DS_Store
