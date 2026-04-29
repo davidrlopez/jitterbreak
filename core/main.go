@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -33,10 +34,25 @@ func interfaces(intf string, state string) error {
 	return nil
 }
 
+func interfaceUp(intf string) (bool, error) {
+	cmd := exec.Command("ifconfig", intf)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, fmt.Errorf("failed to inspect interface %s: %w", intf, err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	if len(lines) == 0 {
+		return false, fmt.Errorf("failed to inspect interface %s", intf)
+	}
+
+	return strings.Contains(lines[0], "UP"), nil
+}
+
 func on() {
 	_, err := freezeSharingd("sharingd", true)
 	if err != nil {
-		fmt.Println("Could not stop the daemon, is it already stoped?):", err)
+		fmt.Println("Could not stop the daemon, is it already stopped?:", err)
 	}
 	errAwdl := interfaces("awdl0", "down")
 	if errAwdl != nil {
@@ -66,6 +82,27 @@ func off() {
 	}
 }
 
+func status() {
+	awdlUp, err := interfaceUp("awdl0")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	llwUp, err := interfaceUp("llw0")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	if !awdlUp && !llwUp {
+		fmt.Println("on")
+		return
+	}
+
+	fmt.Println("off")
+}
+
 func interactive() {
 	on()
 	fmt.Println("Both interfaces down. Program running... press ctrl+c to exit when you are done")
@@ -78,17 +115,26 @@ func interactive() {
 
 }
 
+func printUsage() {
+	fmt.Println("JitterBreak use:")
+	fmt.Println("*****************************")
+	fmt.Println("  sudo jitterbreak       ##Interactive mode")
+	fmt.Println("  sudo jitterbreak on    ## Activates and exits")
+	fmt.Println("  sudo jitterbreak off   ## Deactivates and exits")
+	fmt.Println("  jitterbreak status     ## Shows current state")
+	fmt.Println("  jitterbreak --help     ## Shows help")
+}
+
 func main() {
 
 	if len(os.Args) > 1 {
 		arg := os.Args[1]
 		if arg == "--help" || arg == "-h" {
-			fmt.Println("JitterBreak use:")
-			fmt.Println("*****************************")
-			fmt.Println("  sudo jitterbreak       ##Interactive mode")
-			fmt.Println("  sudo jitterbreak on    ## Activates and exits")
-			fmt.Println("  sudo jitterbreak off   ## Deactivates and exits")
-			fmt.Println("  jitterbreak --help     ## Shows help")
+			printUsage()
+			os.Exit(0)
+		}
+		if arg == "status" || arg == "--status" {
+			status()
 			os.Exit(0)
 		}
 	}
@@ -104,7 +150,7 @@ func main() {
 		case "off":
 			off()
 		default:
-			fmt.Println("valid arguments: --on,--off")
+			fmt.Println("valid arguments: on, off, status")
 			os.Exit(1)
 		}
 	} else {

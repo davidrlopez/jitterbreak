@@ -1,6 +1,7 @@
 # Go
 core/jitterbreak-core
 core/jitterbreak
+core/main
 
 # Xcode / Swift
 .DS_Store
