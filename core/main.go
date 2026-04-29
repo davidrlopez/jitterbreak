@@ -79,22 +79,35 @@ func interactive() {
 }
 
 func main() {
+
+	if len(os.Args) > 1 {
+		arg := os.Args[1]
+		if arg == "--help" || arg == "-h" {
+			fmt.Println("JitterBreak use:")
+			fmt.Println("*****************************")
+			fmt.Println("  sudo jitterbreak       ##Interactive mode")
+			fmt.Println("  sudo jitterbreak on    ## Activates and exits")
+			fmt.Println("  sudo jitterbreak off   ## Deactivates and exits")
+			fmt.Println("  jitterbreak --help     ## Shows help")
+			os.Exit(0)
+		}
+	}
 	if os.Geteuid() != 0 {
 		fmt.Println("Need sudo to execute")
 		os.Exit(1)
 	}
-	if len(os.Args) == 1 {
+	if len(os.Args) > 1 {
+		flag := os.Args[1]
+		switch flag {
+		case "on":
+			on()
+		case "off":
+			off()
+		default:
+			fmt.Println("valid arguments: --on,--off")
+			os.Exit(1)
+		}
+	} else {
 		interactive()
-		return
-	}
-	flag := os.Args[1]
-
-	switch flag {
-	case "on":
-		on()
-	case "off":
-		off()
-	default:
-		fmt.Println("valid arguments: --on,--off")
 	}
 }
