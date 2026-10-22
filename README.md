@@ -16,6 +16,14 @@ This happens because macOS periodically forces your Wi-Fi card to switch channel
 
 - _Turning off Bluetooth:_ Partially stops the scanning but disables your wireless headphones, mice, and Apple Watch unlock.
 - _Turning off AirDrop/Location:_ Often insufficient, as the `sharingd` background daemon will aggressively attempt to turn the interfaces back on.
+- _Turning on Game Mode:_ Doesn't stop the scanning. Even with Game Mode forced on, CS2 still reports packet loss and jitter without JitterBreak:
+
+  ```bash
+  gamepolicyctl game-mode set on     # Forces macOS Game Mode on (needs Xcode installed)
+  gamepolicyctl game-mode set auto   # Back to the default
+  ```
+
+  ![CS2 with Game Mode forced on and JitterBreak off: 7% incoming packet loss and 86 ms net jitter](docs/cs2-game-mode-on.jpg)
 
 ## The Solution: JitterBreak
 
@@ -26,6 +34,10 @@ It works by:
 1. Sending a `SIGSTOP` signal to the `sharingd` daemon, freezing it in RAM so it cannot auto-restart the network interfaces.
 2. Bringing down the `awdl0` and `llw0` virtual network interfaces using `ifconfig`.
 3. Restoring everything cleanly back to normal once you finish your gaming session.
+
+With JitterBreak on, CS2 shows 0.8% packet loss and no jitter warning:
+
+![CS2 with JitterBreak on: 14 ms ping, 0.8% incoming packet loss and no net jitter warning](docs/cs2-jitterbreak-on.jpg)
 
 ## Architecture
 
