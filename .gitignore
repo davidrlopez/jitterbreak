@@ -23,3 +23,6 @@ DerivedData/
 *.ipa
 *.xcuserstate
 *.app
+
+# Built by the Xcode run script from core/
+JitterBreak/JitterBreak/jitterbreak-core

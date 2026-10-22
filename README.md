@@ -51,6 +51,19 @@ brew install --cask davidrlopez/tap/jitterbreak-app
 3. Launch it. It will live silently in your top Menu Bar.
 4. Click "Start JitterBreak" (macOS will prompt for TouchID/Password to grant the internal Go engine root privileges).
 
+**First launch: macOS blocks the app**
+
+JitterBreak isn't notarized by Apple, so the first time you open it macOS says it could not verify that the app is free of malware. This happens whether you installed it with Homebrew or from the `.dmg`. To open it:
+
+1. Open `JitterBreak.app` once and click "Done" on the warning.
+2. Go to System Settings > Privacy & Security and scroll down to the Security section.
+3. Next to the message saying JitterBreak was blocked, click "Open Anyway".
+4. Confirm with Touch ID or your password. If macOS asks again, choose "Open Anyway".
+
+You only have to do this once; after that the app opens normally. The source of both the app (`JitterBreak/`) and the engine that changes your network settings (`core/main.go`) is in this repository if you want to read what it does before you allow it.
+
+If you'd rather not allow an unverified app, use the CLI (Option B). Homebrew builds it from source on your Mac, so macOS doesn't block it.
+
 ### Option B: Terminal CLI (For Power Users)
 
 If you prefer to use the terminal without the GUI, you can install the standalone Go engine via Homebrew:
